@@ -214,6 +214,22 @@ func (r *SriovOperatorConfigReconciler) syncConfigDaemonSet(ctx context.Context,
 		data.Data["CNIBinPath"] = envCniBinPath
 	}
 
+	envHostEtcPath := os.Getenv("SRIOV_HOST_ETC_PATH")
+	if envHostEtcPath == "" {
+		data.Data["HostEtcPath"] = "/etc"
+	} else {
+		logger.V(1).Info("Custom host etc path", "HostEtcPath", envHostEtcPath)
+		data.Data["HostEtcPath"] = envHostEtcPath
+	}
+
+	envHostUdevPath := os.Getenv("SRIOV_HOST_UDEV_PATH")
+	if envHostUdevPath == "" {
+		data.Data["HostUdevPath"] = "/etc/udev"
+	} else {
+		logger.V(1).Info("Custom host udev path", "HostUdevPath", envHostUdevPath)
+		data.Data["HostUdevPath"] = envHostUdevPath
+	}
+
 	if len(dc.Spec.DisablePlugins) > 0 {
 		logger.V(1).Info("DisablePlugins provided", "DisablePlugins", dc.Spec.DisablePlugins)
 		data.Data["DisablePlugins"] = strings.Join(dc.Spec.DisablePlugins.ToStringSlice(), ",")

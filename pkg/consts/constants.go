@@ -1,6 +1,7 @@
 package consts
 
 import (
+	"os"
 	"time"
 )
 
@@ -137,18 +138,6 @@ const (
 	UdevRepName         = "/bindata/scripts/switchdev-vf-link-name.sh"
 	// nolint:goconst
 	PFNameUdevRule = `SUBSYSTEM=="net", ACTION=="add", DRIVERS=="?*", KERNELS=="%s", NAME="%s"`
-	// nolint:goconst
-	NMUdevRule = `SUBSYSTEM=="net", ` +
-		`ACTION=="add|change|move", ` +
-		`ATTRS{device}=="%s", ` +
-		`IMPORT{program}="/etc/udev/disable-nm-sriov.sh $env{INTERFACE} %s"`
-	// nolint:goconst
-	SwitchdevUdevRule = `SUBSYSTEM=="net", ` +
-		`ACTION=="add|move", ` +
-		`ATTRS{phys_switch_id}=="%s", ` +
-		`ATTR{phys_port_name}=="pf%svf*", ` +
-		`IMPORT{program}="/etc/udev/switchdev-vf-link-name.sh $attr{phys_port_name}", ` +
-		`NAME="%s_$env{NUMBER}"`
 
 	KernelArgPciRealloc    = "pci=realloc"
 	KernelArgIntelIommu    = "intel_iommu=on"
@@ -189,3 +178,26 @@ const (
 	// The path to the file on the host filesystem that contains the IB GUID distribution for IB VFs
 	InfinibandGUIDConfigFilePath = SriovConfBasePath + "/infiniband/guids"
 )
+
+// nolint:goconst
+var NMUdevRule string
+
+// nolint:goconst
+var SwitchdevUdevRule string
+
+func init() {
+	udevPath := os.Getenv("SRIOV_HOST_UDEV_PATH")
+	if udevPath == "" {
+		udevPath = "/etc/udev"
+	}
+	NMUdevRule = `SUBSYSTEM=="net", ` +
+		`ACTION=="add|change|move", ` +
+		`ATTRS{device}=="%s", ` +
+		`IMPORT{program}="` + udevPath + `/disable-nm-sriov.sh $env{INTERFACE} %s"`
+	SwitchdevUdevRule = `SUBSYSTEM=="net", ` +
+		`ACTION=="add|move", ` +
+		`ATTRS{phys_switch_id}=="%s", ` +
+		`ATTR{phys_port_name}=="pf%svf*", ` +
+		`IMPORT{program}="` + udevPath + `/switchdev-vf-link-name.sh $attr{phys_port_name}", ` +
+		`NAME="%s_$env{NUMBER}"`
+}

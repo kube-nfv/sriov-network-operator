@@ -170,6 +170,10 @@ spec:
             value: "{{.ClusterType}}"
           - name: DEV_MODE
             value: "{{.DevMode}}"
+          - name: SRIOV_HOST_ETC_PATH
+            value: "{{.HostEtcPath}}"
+          - name: SRIOV_HOST_UDEV_PATH
+            value: "{{.HostUdevPath}}"
           {{- if .UseExternalDrainer }}
           - name: USE_EXTERNAL_DRAINER
             value: "{{.UseExternalDrainer}}"
@@ -185,6 +189,8 @@ spec:
         volumeMounts:
           - name: host
             mountPath: /host
+          - name: host-etc
+            mountPath: /host/etc
           - name: tmp
             mountPath: /tmp
         lifecycle:
@@ -202,5 +208,8 @@ spec:
         hostPath:
           path: /etc/os-release
           type: File
+      - name: host-etc
+        hostPath:
+          path: {{.HostEtcPath}}
       - name: tmp
         emptyDir: {}

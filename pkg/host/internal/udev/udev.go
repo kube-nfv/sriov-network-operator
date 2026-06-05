@@ -55,6 +55,10 @@ func (u *udev) PrepareNMUdevRule() error {
 func (u *udev) PrepareVFRepUdevRule() error {
 	log.Log.V(2).Info("PrepareVFRepUdevRule()")
 	targetPath := filepath.Join(vars.FilesystemRoot, consts.HostUdevFolder, filepath.Base(consts.UdevRepName))
+	if err := os.MkdirAll(filepath.Join(vars.FilesystemRoot, consts.HostUdevFolder), os.ModePerm); err != nil {
+		log.Log.Error(err, "PrepareVFRepUdevRule(): failed to create udev directory")
+		return err
+	}
 	data, err := os.ReadFile(filepath.Join(vars.FilesystemRoot, consts.UdevRepName))
 	if err != nil {
 		log.Log.Error(err, "PrepareVFRepUdevRule(): failed to read source for representor name UDEV script")
