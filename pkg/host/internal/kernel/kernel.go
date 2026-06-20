@@ -49,21 +49,11 @@ func (k *kernel) LoadKernelModule(name string, args ...string) error {
 
 func (k *kernel) IsKernelModuleLoaded(kernelModuleName string) (bool, error) {
 	log.Log.Info("IsKernelModuleLoaded(): check if kernel module is loaded", "name", kernelModuleName)
-	chrootDefinition := utils.GetChrootExtension()
 
-	stdout, stderr, err := k.utilsHelper.RunCommand("/bin/sh", "-c", fmt.Sprintf("%s lsmod | grep \"^%s\"", chrootDefinition, kernelModuleName))
-	if err != nil && len(stderr) != 0 {
-		log.Log.Error(err, "IsKernelModuleLoaded(): failed to check if kernel module is loaded",
-			"name", kernelModuleName, "stderr", stderr)
-		return false, err
-	}
-	log.Log.V(2).Info("IsKernelModuleLoaded():", "stdout", stdout)
-	if len(stderr) != 0 {
-		log.Log.Error(err, "IsKernelModuleLoaded(): failed to check if kernel module is loaded", "name", kernelModuleName, "stderr", stderr)
-		return false, errors.New(stderr)
-	}
-
-	if len(stdout) != 0 {
+	// Use /sys/module/<name> — works without lsmod (e.g. Talos Linux)
+	sysModuleName := strings.ReplaceAll(kernelModuleName, "-", "_")
+	sysModulePath := filepath.Join(utils.GetHostExtension(), "sys", "module", sysModuleName)
+	if _, err := os.Stat(sysModulePath); err == nil {
 		log.Log.Info("IsKernelModuleLoaded(): kernel module already loaded", "name", kernelModuleName)
 		return true, nil
 	}
