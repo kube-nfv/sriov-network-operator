@@ -8,6 +8,11 @@ on:
   push:
     tags:
       - v*
+
+permissions:
+  contents: read
+  packages: write
+
 jobs:
   build-and-push-image-operator:
     runs-on: ubuntu-24.04
