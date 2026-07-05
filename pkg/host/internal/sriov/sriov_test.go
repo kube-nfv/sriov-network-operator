@@ -529,7 +529,7 @@ var _ = Describe("SRIOV", func() {
 			netlinkLibMock.EXPECT().LinkSetVfHardwareAddr(vf0LinkMock, 0, vf0Mac).Return(nil)
 			hostMock.EXPECT().GetPhysPortName("enp216s0f0np0").Return("p0", nil)
 			hostMock.EXPECT().GetPhysSwitchID("enp216s0f0np0").Return("7cfe90ff2cc0", nil)
-			hostMock.EXPECT().AddVfRepresentorUdevRule("0000:d8:00.0", "enp216s0f0np0", "7cfe90ff2cc0", "p0").Return(nil)
+			hostMock.EXPECT().AddVfRepresentorUdevRule("0000:d8:00.0", "enp216s0f0np0", "7cfe90ff2cc0", "p0", 1).Return(nil)
 			hostMock.EXPECT().CreateVDPADevice("0000:d8:00.2", "vhost_vdpa")
 			hostMock.EXPECT().LoadUdevRules().Return(nil)
 
@@ -599,7 +599,7 @@ var _ = Describe("SRIOV", func() {
 			netlinkLibMock.EXPECT().LinkSetVfHardwareAddr(vf0LinkMock, 0, vf0Mac).Return(nil)
 			hostMock.EXPECT().GetPhysPortName("enp216s0f0np0").Return("p0", nil)
 			hostMock.EXPECT().GetPhysSwitchID("enp216s0f0np0").Return("7cfe90ff2cc0", nil)
-			hostMock.EXPECT().AddVfRepresentorUdevRule("0000:d8:00.0", "enp216s0f0np0", "7cfe90ff2cc0", "p0").Return(nil)
+			hostMock.EXPECT().AddVfRepresentorUdevRule("0000:d8:00.0", "enp216s0f0np0", "7cfe90ff2cc0", "p0", 1).Return(nil)
 			hostMock.EXPECT().CreateVDPADevice("0000:d8:00.2", "vhost_vdpa")
 			hostMock.EXPECT().LoadUdevRules().Return(nil)
 
@@ -669,7 +669,7 @@ var _ = Describe("SRIOV", func() {
 			netlinkLibMock.EXPECT().LinkSetVfHardwareAddr(vf0LinkMock, 0, vf0Mac).Return(nil)
 			hostMock.EXPECT().GetPhysPortName("enp216s0f0np0").Return("p0", nil)
 			hostMock.EXPECT().GetPhysSwitchID("enp216s0f0np0").Return("7cfe90ff2cc0", nil)
-			hostMock.EXPECT().AddVfRepresentorUdevRule("0000:d8:00.0", "enp216s0f0np0", "7cfe90ff2cc0", "p0").Return(nil)
+			hostMock.EXPECT().AddVfRepresentorUdevRule("0000:d8:00.0", "enp216s0f0np0", "7cfe90ff2cc0", "p0", 1).Return(nil)
 			hostMock.EXPECT().CreateVDPADevice("0000:d8:00.2", "vhost_vdpa")
 			hostMock.EXPECT().LoadUdevRules().Return(nil)
 
@@ -741,7 +741,7 @@ var _ = Describe("SRIOV", func() {
 			netlinkLibMock.EXPECT().LinkSetVfHardwareAddr(vf0LinkMock, 0, vf0Mac).Return(nil)
 			hostMock.EXPECT().GetPhysPortName("enp216s0f0np0").Return("p0", nil)
 			hostMock.EXPECT().GetPhysSwitchID("enp216s0f0np0").Return("7cfe90ff2cc0", nil)
-			hostMock.EXPECT().AddVfRepresentorUdevRule("0000:d8:00.0", "enp216s0f0np0", "7cfe90ff2cc0", "p0").Return(nil)
+			hostMock.EXPECT().AddVfRepresentorUdevRule("0000:d8:00.0", "enp216s0f0np0", "7cfe90ff2cc0", "p0", 1).Return(nil)
 			hostMock.EXPECT().CreateVDPADevice("0000:d8:00.2", "vhost_vdpa")
 			hostMock.EXPECT().LoadUdevRules().Return(nil)
 
@@ -809,7 +809,7 @@ var _ = Describe("SRIOV", func() {
 			netlinkLibMock.EXPECT().LinkSetVfHardwareAddr(vf0LinkMock, 0, vf0Mac).Return(nil)
 			hostMock.EXPECT().GetPhysPortName("enp216s0f0np0").Return("p0", nil)
 			hostMock.EXPECT().GetPhysSwitchID("enp216s0f0np0").Return("7cfe90ff2cc0", nil)
-			hostMock.EXPECT().AddVfRepresentorUdevRule("0000:d8:00.0", "enp216s0f0np0", "7cfe90ff2cc0", "p0").Return(nil)
+			hostMock.EXPECT().AddVfRepresentorUdevRule("0000:d8:00.0", "enp216s0f0np0", "7cfe90ff2cc0", "p0", 1).Return(nil)
 			hostMock.EXPECT().CreateVDPADevice("0000:d8:00.2", "vhost_vdpa")
 			hostMock.EXPECT().LoadUdevRules().Return(nil)
 

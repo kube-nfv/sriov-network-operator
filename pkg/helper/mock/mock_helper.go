@@ -73,17 +73,17 @@ func (mr *MockHostHelpersInterfaceMockRecorder) AddPersistPFNameUdevRule(pfPciAd
 }
 
 // AddVfRepresentorUdevRule mocks base method.
-func (m *MockHostHelpersInterface) AddVfRepresentorUdevRule(pfPciAddress, pfName, pfSwitchID, pfSwitchPort string) error {
+func (m *MockHostHelpersInterface) AddVfRepresentorUdevRule(pfPciAddress, pfName, pfSwitchID, pfSwitchPort string, numVfs int) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "AddVfRepresentorUdevRule", pfPciAddress, pfName, pfSwitchID, pfSwitchPort)
+	ret := m.ctrl.Call(m, "AddVfRepresentorUdevRule", pfPciAddress, pfName, pfSwitchID, pfSwitchPort, numVfs)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // AddVfRepresentorUdevRule indicates an expected call of AddVfRepresentorUdevRule.
-func (mr *MockHostHelpersInterfaceMockRecorder) AddVfRepresentorUdevRule(pfPciAddress, pfName, pfSwitchID, pfSwitchPort any) *gomock.Call {
+func (mr *MockHostHelpersInterfaceMockRecorder) AddVfRepresentorUdevRule(pfPciAddress, pfName, pfSwitchID, pfSwitchPort, numVfs any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddVfRepresentorUdevRule", reflect.TypeOf((*MockHostHelpersInterface)(nil).AddVfRepresentorUdevRule), pfPciAddress, pfName, pfSwitchID, pfSwitchPort)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddVfRepresentorUdevRule", reflect.TypeOf((*MockHostHelpersInterface)(nil).AddVfRepresentorUdevRule), pfPciAddress, pfName, pfSwitchID, pfSwitchPort, numVfs)
 }
 
 // BindDefaultDriver mocks base method.

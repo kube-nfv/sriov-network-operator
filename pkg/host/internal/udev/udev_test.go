@@ -24,8 +24,12 @@ const (
 		`IMPORT{program}="/etc/udev/disable-nm-sriov.sh $env{INTERFACE} 0000:d8:00.0"`
 	testExpectedSwitchdevUdevRule = `SUBSYSTEM=="net", ACTION=="add|move", ` +
 		`ATTRS{phys_switch_id}=="7cfe90ff2cc0", ` +
-		`ATTR{phys_port_name}=="pf0vf*", IMPORT{program}="/etc/udev/switchdev-vf-link-name.sh $attr{phys_port_name}", ` +
-		`NAME="enp216s0f0np0_$env{NUMBER}"`
+		`ATTR{phys_port_name}=="pf0vf0", ` +
+		`NAME="enp216s0f0np0_0"` + "\n" +
+		`SUBSYSTEM=="net", ACTION=="add|move", ` +
+		`ATTRS{phys_switch_id}=="7cfe90ff2cc0", ` +
+		`ATTR{phys_port_name}=="pf0vf1", ` +
+		`NAME="enp216s0f0np0_1"` + "\n"
 )
 
 var _ = Describe("UDEV", func() {
@@ -133,7 +137,7 @@ var _ = Describe("UDEV", func() {
 		It("Created", func() {
 			helpers.GinkgoConfigureFakeFS(&fakefilesystem.FS{})
 			Expect(s.AddVfRepresentorUdevRule("0000:d8:00.0",
-				"enp216s0f0np0", "7cfe90ff2cc0", "p0")).To(BeNil())
+				"enp216s0f0np0", "7cfe90ff2cc0", "p0", 2)).To(BeNil())
 			helpers.GinkgoAssertFileContentsEquals(
 				"/etc/udev/rules.d/20-switchdev-0000:d8:00.0.rules",
 				testExpectedSwitchdevUdevRule)
@@ -146,7 +150,7 @@ var _ = Describe("UDEV", func() {
 				},
 			})
 			Expect(s.AddVfRepresentorUdevRule("0000:d8:00.0",
-				"enp216s0f0np0", "7cfe90ff2cc0", "p0")).To(BeNil())
+				"enp216s0f0np0", "7cfe90ff2cc0", "p0", 2)).To(BeNil())
 			helpers.GinkgoAssertFileContentsEquals(
 				"/etc/udev/rules.d/20-switchdev-0000:d8:00.0.rules",
 				testExpectedSwitchdevUdevRule)

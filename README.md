@@ -4,6 +4,12 @@
 
 The SR-IOV Network Operator simplifies the deployment and management of SR-IOV networking in Kubernetes and OpenShift clusters.
 
+> **kube-nfv fork:** This is a long-maintained fork that carries fixes to run the
+> operator on shell-less, immutable **Talos Linux** nodes in the kube-nfv
+> environment (configurable host paths, `/sys`-based kernel module detection,
+> shell-free switchdev udev rules, and metrics-exporter tolerations). See
+> [Running on Talos Linux](doc/talos.md).
+
 ## What is SR-IOV?
 
 Single Root I/O Virtualization (SR-IOV) allows a single physical network interface to be shared among multiple pods with near-native performance, ideal for high-throughput, low-latency network workloads like CNF, AI/ML, and HPC applications.
@@ -231,6 +237,7 @@ spec:
 - [OVS Hardware Offload](doc/ovs-hw-offload.md) - Hardware acceleration with OVS
 - [vDPA Support](doc/vdpa.md) - virtio Data Path Acceleration
 - [Advanced Features](doc/advanced-features.md) - Feature gates and parallel operations
+- [Talos Linux](doc/talos.md) - Running on shell-less, immutable Talos nodes
 
 ### Operations
 - [Troubleshooting](doc/troubleshooting.md) - Common issues and solutions

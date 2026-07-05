@@ -1115,7 +1115,7 @@ func (s *sriov) addVfRepresentorUdevRule(iface *sriovnetworkv1.Interface) error 
 			log.Log.Error(err, "addVfRepresentorUdevRule(): WARNING: can't read phys_switch_id for device, skip creation of UDEV rule")
 			return nil
 		}
-		return s.udevHelper.AddVfRepresentorUdevRule(iface.PciAddress, iface.Name, switchID, portName)
+		return s.udevHelper.AddVfRepresentorUdevRule(iface.PciAddress, iface.Name, switchID, portName, iface.NumVfs)
 	}
 	return nil
 }

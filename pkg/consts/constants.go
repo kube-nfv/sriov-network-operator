@@ -130,12 +130,17 @@ const (
 	BusPci                = "pci"
 	BusVdpa               = "vdpa"
 
-	UdevFolder          = "/etc/udev"
+	UdevFolder = "/etc/udev"
+	// Deprecated: no longer used. Was the host target dir for the switchdev VF
+	// representor naming helper script, which is no longer deployed.
 	HostUdevFolder      = Host + UdevFolder
 	UdevRulesFolder     = UdevFolder + "/rules.d"
 	HostUdevRulesFolder = Host + UdevRulesFolder
 	UdevDisableNM       = "/bindata/scripts/udev-find-sriov-pf.sh"
-	UdevRepName         = "/bindata/scripts/switchdev-vf-link-name.sh"
+	// Deprecated: no longer used. VF representor renaming is now done with native
+	// per-VF udev rules (see SwitchdevUdevRule) instead of a shell helper script,
+	// which is required on shell-less hosts like Talos.
+	UdevRepName = "/bindata/scripts/switchdev-vf-link-name.sh"
 	// nolint:goconst
 	PFNameUdevRule = `SUBSYSTEM=="net", ACTION=="add", DRIVERS=="?*", KERNELS=="%s", NAME="%s"`
 
@@ -194,10 +199,16 @@ func init() {
 		`ACTION=="add|change|move", ` +
 		`ATTRS{device}=="%s", ` +
 		`IMPORT{program}="` + udevPath + `/disable-nm-sriov.sh $env{INTERFACE} %s"`
+	// SwitchdevUdevRule renames a single VF representor to "<pfName>_<vfID>".
+	// One rule line is emitted per VF (see udev.AddVfRepresentorUdevRule) using an
+	// exact phys_port_name match ("pf<port>vf<vfID>"), so no helper program is
+	// needed to extract the VF number. This keeps representor renaming working on
+	// shell-less, immutable hosts like Talos where IMPORT{program} of a shell
+	// script silently fails.
+	// Format args: phys_switch_id, pf port number, vfID, pfName, vfID.
 	SwitchdevUdevRule = `SUBSYSTEM=="net", ` +
 		`ACTION=="add|move", ` +
 		`ATTRS{phys_switch_id}=="%s", ` +
-		`ATTR{phys_port_name}=="pf%svf*", ` +
-		`IMPORT{program}="` + udevPath + `/switchdev-vf-link-name.sh $attr{phys_port_name}", ` +
-		`NAME="%s_$env{NUMBER}"`
+		`ATTR{phys_port_name}=="pf%svf%d", ` +
+		`NAME="%s_%d"`
 }

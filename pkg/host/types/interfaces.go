@@ -153,6 +153,8 @@ type UdevInterface interface {
 	// our managed SR-IOV virtual functions
 	PrepareNMUdevRule() error
 	// PrepareVFRepUdevRule creates a script which helps to configure representor name for the VF
+	// Deprecated: no longer used. VF representor renaming is now done with native
+	// per-VF udev rules (see AddVfRepresentorUdevRule), required on shell-less hosts like Talos.
 	PrepareVFRepUdevRule() error
 	// AddDisableNMUdevRule adds udev rule that disables NetworkManager for VFs on the concrete PF:
 	AddDisableNMUdevRule(pfPciAddress string) error
@@ -162,8 +164,8 @@ type UdevInterface interface {
 	AddPersistPFNameUdevRule(pfPciAddress, pfName string) error
 	// RemovePersistPFNameUdevRule removes udev rule that preserves PF name after switching to switchdev mode
 	RemovePersistPFNameUdevRule(pfPciAddress string) error
-	// AddVfRepresentorUdevRule adds udev rule that renames VF representors on the concrete PF
-	AddVfRepresentorUdevRule(pfPciAddress, pfName, pfSwitchID, pfSwitchPort string) error
+	// AddVfRepresentorUdevRule adds udev rules that rename VF representors on the concrete PF
+	AddVfRepresentorUdevRule(pfPciAddress, pfName, pfSwitchID, pfSwitchPort string, numVfs int) error
 	// RemoveVfRepresentorUdevRule removes udev rule that renames VF representors on the concrete PF
 	RemoveVfRepresentorUdevRule(pfPciAddress string) error
 	// LoadUdevRules triggers udev rules for network subsystem

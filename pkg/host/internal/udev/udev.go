@@ -101,12 +101,21 @@ func (u *udev) RemovePersistPFNameUdevRule(pfPciAddress string) error {
 	return u.removeUdevRule(pfPciAddress, "10-pf-name")
 }
 
-// AddVfRepresentorUdevRule adds udev rule that renames VF representors on the concrete PF
-func (u *udev) AddVfRepresentorUdevRule(pfPciAddress, pfName, pfSwitchID, pfSwitchPort string) error {
+// AddVfRepresentorUdevRule adds udev rules that rename VF representors on the concrete PF.
+// One exact-match rule line is emitted per VF (representor phys_port_name is
+// "pf<port>vf<vfID>"), so the VF number is taken straight from the match instead
+// of being extracted by a helper program. This keeps renaming functional on
+// shell-less hosts like Talos.
+func (u *udev) AddVfRepresentorUdevRule(pfPciAddress, pfName, pfSwitchID, pfSwitchPort string, numVfs int) error {
 	log.Log.V(2).Info("AddVfRepresentorUdevRule()",
-		"device", pfPciAddress, "name", pfName, "switch", pfSwitchID, "port", pfSwitchPort)
-	udevRuleContent := fmt.Sprintf(consts.SwitchdevUdevRule, pfSwitchID, strings.TrimPrefix(pfSwitchPort, "p"), pfName)
-	return u.addUdevRule(pfPciAddress, "20-switchdev", udevRuleContent)
+		"device", pfPciAddress, "name", pfName, "switch", pfSwitchID, "port", pfSwitchPort, "numVfs", numVfs)
+	portNum := strings.TrimPrefix(pfSwitchPort, "p")
+	var sb strings.Builder
+	for vfID := 0; vfID < numVfs; vfID++ {
+		sb.WriteString(fmt.Sprintf(consts.SwitchdevUdevRule, pfSwitchID, portNum, vfID, pfName, vfID))
+		sb.WriteString("\n")
+	}
+	return u.addUdevRule(pfPciAddress, "20-switchdev", sb.String())
 }
 
 // RemoveVfRepresentorUdevRule removes udev rule that renames VF representors on the concrete PF

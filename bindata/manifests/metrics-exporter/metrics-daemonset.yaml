@@ -93,6 +93,8 @@ spec:
         {{- range $key, $value := .NodeSelectorField }}
           {{ $key }}: "{{ $value }}"
         {{- end }}
+      tolerations:
+      - operator: Exists
       restartPolicy: Always
       volumes:
       - hostPath:
