@@ -52,6 +52,13 @@ func (u *udev) PrepareNMUdevRule() error {
 }
 
 // PrepareVFRepUdevRule creates a script which helps to configure representor name for the VF
+//
+// Deprecated: the switchdev VF representor script is no longer used for renaming
+// (see AddVfRepresentorUdevRule). This legacy path is kept intentionally and
+// still references the deprecated HostUdevFolder/UdevRepName consts, hence the
+// nolint below.
+//
+//nolint:staticcheck // legacy shell-script path; intentionally uses deprecated consts
 func (u *udev) PrepareVFRepUdevRule() error {
 	log.Log.V(2).Info("PrepareVFRepUdevRule()")
 	targetPath := filepath.Join(vars.FilesystemRoot, consts.HostUdevFolder, filepath.Base(consts.UdevRepName))
