@@ -188,12 +188,9 @@ var _ = Describe("UDEV", func() {
 			Expect(s.PrepareVFRepUdevRule()).To(BeNil())
 			helpers.GinkgoAssertFileContentsEquals("/host/etc/udev/switchdev-vf-link-name.sh", "script")
 		})
-		It("Fail - no folder", func() {
+		It("Fail - no source script", func() {
 			helpers.GinkgoConfigureFakeFS(&fakefilesystem.FS{
 				Dirs: []string{"/bindata/scripts"},
-				Files: map[string][]byte{
-					"/bindata/scripts/switchdev-vf-link-name.sh": []byte("script"),
-				},
 			})
 			Expect(s.PrepareVFRepUdevRule()).NotTo(BeNil())
 		})
