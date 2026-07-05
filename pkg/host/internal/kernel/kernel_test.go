@@ -74,28 +74,28 @@ var _ = Describe("Kernel", func() {
 		})
 
 		Context("LoadKernelModule", func() {
-			It("should return still try to load the kernel module if not able to check if it's loaded", func() {
-				u.EXPECT().RunCommand("/bin/sh", "-c", fmt.Sprintf("chroot %s lsmod | grep \"^tun\"", getHost())).Return("", "lsmod failed", fmt.Errorf("lsmod failed"))
+			It("should load the kernel module if it's not loaded", func() {
+				helpers.GinkgoConfigureFakeFS(&fakefilesystem.FS{Dirs: []string{"/host"}})
 				u.EXPECT().RunCommand("/bin/sh", "-c", fmt.Sprintf("chroot %s modprobe tun ", getHost())).Return("", "", nil)
 				err := kMocked.LoadKernelModule("tun")
 				Expect(err).ToNot(HaveOccurred())
 			})
 
-			It("should not try to to load the driver if it's already loaded", func() {
-				u.EXPECT().RunCommand("/bin/sh", "-c", fmt.Sprintf("chroot %s lsmod | grep \"^tun\"", getHost())).Return("tun", "", nil)
+			It("should not try to load the driver if it's already loaded", func() {
+				helpers.GinkgoConfigureFakeFS(&fakefilesystem.FS{Dirs: []string{"/host/sys/module/tun"}})
 				err := kMocked.LoadKernelModule("tun")
 				Expect(err).ToNot(HaveOccurred())
 			})
 
 			It("should return error if not able to load kernel module", func() {
-				u.EXPECT().RunCommand("/bin/sh", "-c", fmt.Sprintf("chroot %s lsmod | grep \"^tun\"", getHost())).Return("", "", nil)
+				helpers.GinkgoConfigureFakeFS(&fakefilesystem.FS{Dirs: []string{"/host"}})
 				u.EXPECT().RunCommand("/bin/sh", "-c", fmt.Sprintf("chroot %s modprobe tun ", getHost())).Return("", "", fmt.Errorf("failed to run modprobe"))
 				err := kMocked.LoadKernelModule("tun")
 				Expect(err).To(HaveOccurred())
 			})
 
 			It("should pass the args to the modprobe command", func() {
-				u.EXPECT().RunCommand("/bin/sh", "-c", fmt.Sprintf("chroot %s lsmod | grep \"^tun\"", getHost())).Return("", "", nil)
+				helpers.GinkgoConfigureFakeFS(&fakefilesystem.FS{Dirs: []string{"/host"}})
 				u.EXPECT().RunCommand("/bin/sh", "-c", fmt.Sprintf("chroot %s modprobe tun test=ok", getHost())).Return("", "", nil)
 				err := kMocked.LoadKernelModule("tun", "test=ok")
 				Expect(err).ToNot(HaveOccurred())
@@ -103,30 +103,23 @@ var _ = Describe("Kernel", func() {
 		})
 
 		Context("IsKernelModuleLoaded", func() {
-			It("should return error if not able to run lsmod command", func() {
-				u.EXPECT().RunCommand("/bin/sh", "-c", fmt.Sprintf("chroot %s lsmod | grep \"^tun\"", getHost())).Return("", "lsmod failed", fmt.Errorf("lsmod failed"))
-				enabled, err := kMocked.IsKernelModuleLoaded("tun")
-				Expect(err).To(HaveOccurred())
-				Expect(enabled).To(BeFalse())
-			})
-
-			It("should return error if stderr is not empty", func() {
-				u.EXPECT().RunCommand("/bin/sh", "-c", fmt.Sprintf("chroot %s lsmod | grep \"^tun\"", getHost())).Return("", "lsmod failed", nil)
-				enabled, err := kMocked.IsKernelModuleLoaded("tun")
-				Expect(err).To(HaveOccurred())
-				Expect(enabled).To(BeFalse())
-			})
-
-			It("should return false if std is empty", func() {
-				u.EXPECT().RunCommand("/bin/sh", "-c", fmt.Sprintf("chroot %s lsmod | grep \"^tun\"", getHost())).Return("", "", nil)
+			It("should return false if the module directory does not exist", func() {
+				helpers.GinkgoConfigureFakeFS(&fakefilesystem.FS{Dirs: []string{"/host/sys/module"}})
 				enabled, err := kMocked.IsKernelModuleLoaded("tun")
 				Expect(err).ToNot(HaveOccurred())
 				Expect(enabled).To(BeFalse())
 			})
 
-			It("should return true if std is not empty", func() {
-				u.EXPECT().RunCommand("/bin/sh", "-c", fmt.Sprintf("chroot %s lsmod | grep \"^tun\"", getHost())).Return("tun", "", nil)
+			It("should return true if the module directory exists", func() {
+				helpers.GinkgoConfigureFakeFS(&fakefilesystem.FS{Dirs: []string{"/host/sys/module/tun"}})
 				enabled, err := kMocked.IsKernelModuleLoaded("tun")
+				Expect(err).ToNot(HaveOccurred())
+				Expect(enabled).To(BeTrue())
+			})
+
+			It("should normalize dashes in the module name to underscores", func() {
+				helpers.GinkgoConfigureFakeFS(&fakefilesystem.FS{Dirs: []string{"/host/sys/module/mlx5_core"}})
+				enabled, err := kMocked.IsKernelModuleLoaded("mlx5-core")
 				Expect(err).ToNot(HaveOccurred())
 				Expect(enabled).To(BeTrue())
 			})
@@ -437,7 +430,7 @@ var _ = Describe("Kernel", func() {
 
 		Context("TryEnableTun", func() {
 			It("should load tun kernel module", func() {
-				u.EXPECT().RunCommand("/bin/sh", "-c", fmt.Sprintf("chroot %s lsmod | grep \"^tun\"", getHost())).Return("", "", nil)
+				helpers.GinkgoConfigureFakeFS(&fakefilesystem.FS{Dirs: []string{"/host"}})
 				u.EXPECT().RunCommand("/bin/sh", "-c", fmt.Sprintf("chroot %s modprobe tun ", getHost())).Return("", "", nil)
 				kMocked.TryEnableTun()
 				Expect(mockCtrl.Satisfied()).To(BeTrue())
@@ -446,7 +439,7 @@ var _ = Describe("Kernel", func() {
 
 		Context("TryEnableVhostNet", func() {
 			It("should load tun kernel module", func() {
-				u.EXPECT().RunCommand("/bin/sh", "-c", fmt.Sprintf("chroot %s lsmod | grep \"^vhost_net\"", getHost())).Return("", "", nil)
+				helpers.GinkgoConfigureFakeFS(&fakefilesystem.FS{Dirs: []string{"/host"}})
 				u.EXPECT().RunCommand("/bin/sh", "-c", fmt.Sprintf("chroot %s modprobe vhost_net ", getHost())).Return("", "", nil)
 				kMocked.TryEnableVhostNet()
 				Expect(mockCtrl.Satisfied()).To(BeTrue())
