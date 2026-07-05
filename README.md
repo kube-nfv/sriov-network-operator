@@ -244,6 +244,7 @@ spec:
 - [Monitoring](doc/monitoring.md) - Metrics and observability
 
 ### Development
+- [Maintaining this fork](MAINTAINING.md) - Fork branch model, CI/CD, releases, and upstream sync
 - [Developer Guide](doc/hacking.md) - Building and development workflow
 - [Testing Guide](doc/testing-kind.md) - Local testing with KIND
 - [Design Documents](doc/design/) - Architecture decisions and designs

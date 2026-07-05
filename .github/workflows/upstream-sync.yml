@@ -1,0 +1,93 @@
+name: "Sync from upstream"
+
+# Periodically merges the upstream k8snetworkplumbingwg/sriov-network-operator
+# master into this fork and opens a PR for review. The fork's Talos commits are
+# preserved on top via a merge commit. Conflicts are pushed as-is so they can be
+# resolved in the PR branch.
+#
+# CI note: PRs opened with the default GITHUB_TOKEN do NOT trigger the
+# `pull_request` workflows (test.yml), by GitHub's anti-recursion rule. To have
+# tests run automatically on the sync PR, add a repo secret `UPSTREAM_SYNC_TOKEN`
+# containing a PAT (or fine-grained token) with `contents: write` and
+# `pull-requests: write`; this workflow uses it when present.
+
+on:
+  schedule:
+    - cron: "0 6 * * 1" # Mondays 06:00 UTC
+  workflow_dispatch: {}
+
+env:
+  UPSTREAM_REPO: https://github.com/k8snetworkplumbingwg/sriov-network-operator.git
+  UPSTREAM_BRANCH: master
+
+jobs:
+  sync:
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.UPSTREAM_SYNC_TOKEN || secrets.GITHUB_TOKEN }}
+
+      - name: Configure git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Fetch upstream
+        run: |
+          git remote add upstream "${UPSTREAM_REPO}"
+          git fetch upstream "${UPSTREAM_BRANCH}"
+
+      - name: Merge upstream into a sync branch
+        id: merge
+        run: |
+          BRANCH="sync/upstream-$(date +%Y%m%d)"
+          echo "branch=${BRANCH}" >> "$GITHUB_OUTPUT"
+
+          git checkout -B "${BRANCH}" origin/master
+
+          if git merge --no-edit upstream/"${UPSTREAM_BRANCH}"; then
+            echo "conflicts=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "conflicts=true" >> "$GITHUB_OUTPUT"
+            # Commit the conflicted tree so a human can resolve it in the PR.
+            git add -A
+            git commit --no-edit
+          fi
+
+          if git diff --quiet origin/master.."${BRANCH}"; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Push and open PR
+        if: steps.merge.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.UPSTREAM_SYNC_TOKEN || secrets.GITHUB_TOKEN }}
+          BRANCH: ${{ steps.merge.outputs.branch }}
+          CONFLICTS: ${{ steps.merge.outputs.conflicts }}
+        run: |
+          git push --force-with-lease origin "${BRANCH}"
+
+          if [ "${CONFLICTS}" = "true" ]; then
+            TITLE="Sync upstream (CONFLICTS — resolve manually) ${BRANCH#sync/upstream-}"
+            BODY="Automated merge of upstream/${UPSTREAM_BRANCH} produced **conflicts**. Check out \`${BRANCH}\`, resolve the conflict markers, and push before merging."
+            DRAFT="--draft"
+          else
+            TITLE="Sync upstream ${BRANCH#sync/upstream-}"
+            BODY="Automated clean merge of upstream/${UPSTREAM_BRANCH}. Review the delta, ensure the fork's Talos fixes are intact, then merge."
+            DRAFT=""
+          fi
+
+          # Reuse an open PR for this branch if one already exists.
+          if gh pr view "${BRANCH}" --json number >/dev/null 2>&1; then
+            echo "PR already exists for ${BRANCH}"
+          else
+            gh pr create --base master --head "${BRANCH}" --title "${TITLE}" --body "${BODY}" ${DRAFT}
+          fi

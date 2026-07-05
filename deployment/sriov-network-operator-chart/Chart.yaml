@@ -7,6 +7,7 @@ description: SR-IOV network operator configures and manages SR-IOV networks in t
 type: application
 keywords:
   - sriov
-home: https://github.com/k8snetworkplumbingwg/sriov-network-operator
+home: https://github.com/kube-nfv/sriov-network-operator
 sources:
+  - https://github.com/kube-nfv/sriov-network-operator
   - https://github.com/k8snetworkplumbingwg/sriov-network-operator

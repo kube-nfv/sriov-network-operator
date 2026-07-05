@@ -267,3 +267,7 @@ chart-prepare-release: | $(YQ) ; ## prepare chart for release
 .PHONY: chart-push-release
 chart-push-release: ## push release chart
 	@GITHUB_TAG=$(GITHUB_TAG) GITHUB_TOKEN=$(GITHUB_TOKEN) GITHUB_REPO_OWNER=$(GITHUB_REPO_OWNER) hack/release/chart-push.sh
+
+.PHONY: next-fork-version
+next-fork-version: ## compute next fork tag for an upstream base: make next-fork-version BASE=v1.6.0
+	@hack/release/next-fork-version.sh $(BASE)
